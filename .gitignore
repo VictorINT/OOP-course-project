@@ -39,3 +39,53 @@
 
 # debug information files
 *.dwo
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+*.cmake
+
+# Build directories
+build/
+Build/
+bin/
+*.app
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Visual Studio
+.vs/
+*.sln
+*.vcxproj*
+*.user
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Dependencies
+*.d
+*.lib
+
+# Temporary files
+*.tmp
+*.log
+temp/
+tmp/
+
+# OS specific
+Thumbs.db
+.DS_Store
+*.dSYM/
+
+# Output files
+reports/*.csv
+
+# Core dump
+core
+core.*
