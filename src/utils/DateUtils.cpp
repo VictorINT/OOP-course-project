@@ -20,8 +20,18 @@ string DateUtils::formatTimestamp(long long timestamp) {
 }
 
 long long DateUtils::parseTimestamp(const string& dateStr) {
-    //! TODO: Implement timestamp parsing logic
-    return 0;
+    tm t = {};
+    istringstream iss(dateStr);
+    iss >> get_time(&t, "%Y-%m-%d %H:%M:%S");
+    if (iss.fail()) {
+        return 0;
+    }
+    t.tm_isdst = -1;
+    time_t timeValue = mktime(&t);
+    if (timeValue == -1) {
+        return 0;
+    }
+    return static_cast<long long>(timeValue);
 }
 
 int DateUtils::diferentaOre(long long timestamp1, long long timestamp2) {

@@ -9,8 +9,8 @@ Supervizor::Supervizor(int id, const string& nume, const string& cnp, double spo
 Supervizor::~Supervizor() {}
 
 double Supervizor::getSalariu() const {
-    //! TODO: Implement salary calculation with leadership bonus
-    return 0.0;
+    const double salariuBaza = 4000.0;
+    return salariuBaza + salariuBaza * sporConducere;
 }
 
 string Supervizor::getTip() const {

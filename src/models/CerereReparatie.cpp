@@ -3,7 +3,7 @@
 
 CerereReparatie::CerereReparatie() : id(0), aparat(nullptr), descriereDefect(""), status(StatusCerere::IN_ASTEPTARE), tehnicianAlocat(nullptr), dataInregistrare(0), dataFinalizare(0), costPiese(0.0), costManopera(0.0) {}
 
-CerereReparatie::CerereReparatie(int id, Electrocasnic* aparat, const std::string& descriere) : id(id), aparat(aparat), descriereDefect(descriere), status(StatusCerere::IN_ASTEPTARE), tehnicianAlocat(nullptr), dataInregistrare(0), dataFinalizare(0), costPiese(0.0), costManopera(0.0) {}
+CerereReparatie::CerereReparatie(int id, Electrocasnic* aparat, const string& descriere) : id(id), aparat(aparat), descriereDefect(descriere), status(StatusCerere::IN_ASTEPTARE), tehnicianAlocat(nullptr), dataInregistrare(0), dataFinalizare(0), costPiese(0.0), costManopera(0.0) {}
 
 CerereReparatie::~CerereReparatie() {}
 
@@ -55,6 +55,10 @@ void CerereReparatie::setDataFinalizare(long long data) {
     dataFinalizare = data;
 }
 
+void CerereReparatie::setDataInregistrare(long long data) {
+    dataInregistrare = data;
+}
+
 void CerereReparatie::setCostPiese(double cost) {
     costPiese = cost;
 }
@@ -68,6 +72,14 @@ double CerereReparatie::getCostTotal() const {
 }
 
 int CerereReparatie::getDurataReparatie() const {
-    //! TODO: Implement duration calculation
-    return 0;
+    if (dataFinalizare <= 0 || dataInregistrare <= 0) {
+        return 0;
+    }
+
+    long long durata = dataFinalizare - dataInregistrare;
+    if (durata < 0) {
+        return 0;
+    }
+
+    return static_cast<int>(durata);
 }

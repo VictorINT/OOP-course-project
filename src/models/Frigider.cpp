@@ -1,4 +1,5 @@
 #include "../../include/models/Frigider.h"
+#include <sstream>
 
 using namespace std;
 
@@ -9,8 +10,11 @@ Frigider::Frigider(const string& marca, const string& model, int anFabricatie, b
 Frigider::~Frigider() {}
 
 string Frigider::getDetalii() const {
-    //! TODO: Implement details formatting
-    return "";
+    ostringstream oss;
+    oss << "Frigider " << marca << " " << model << " (" << anFabricatie << ")"
+        << " | congelator: " << (areCongelator ? "da" : "nu")
+        << " | capacitate: " << capacitateLitri << " L";
+    return oss.str();
 }
 
 bool Frigider::getAreCongelator() const {

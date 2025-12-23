@@ -46,6 +46,7 @@ public:
     void setStatus(StatusCerere);
     void setTehnicianAlocat(Tehnician*);
     void setDataFinalizare(long long);
+    void setDataInregistrare(long long);
     void setCostPiese(double);
     void setCostManopera(double);
     

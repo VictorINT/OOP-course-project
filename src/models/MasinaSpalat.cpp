@@ -1,4 +1,5 @@
 #include "../../include/models/MasinaSpalat.h"
+#include <sstream>
 
 using namespace std;
 
@@ -9,8 +10,11 @@ MasinaSpalat::MasinaSpalat(const string& marca, const string& model, int anFabri
 MasinaSpalat::~MasinaSpalat() {}
 
 string MasinaSpalat::getDetalii() const {
-    //! TODO: Implement details formatting
-    return "";
+    ostringstream oss;
+    oss << "MasinaSpalat " << marca << " " << model << " (" << anFabricatie << ")"
+        << " | capacitate: " << capacitateKg << " kg"
+        << " | turatie: " << turatieStoarcere << " rpm";
+    return oss.str();
 }
 
 int MasinaSpalat::getCapacitateKg() const {

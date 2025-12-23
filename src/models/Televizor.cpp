@@ -1,4 +1,5 @@
 #include "../../include/models/Televizor.h"
+#include <sstream>
 
 using namespace std;
 
@@ -9,8 +10,11 @@ Televizor::Televizor(const string& marca, const string& model, int anFabricatie,
 Televizor::~Televizor() {}
 
 string Televizor::getDetalii() const {
-    //! TODO: Implement details formatting
-    return "";
+    ostringstream oss;
+    oss << "Televizor " << marca << " " << model << " (" << anFabricatie << ")"
+        << " | diagonala: " << diagonalaInch << " in"
+        << " | smart: " << (esteSmart ? "da" : "nu");
+    return oss.str();
 }
 
 double Televizor::getDiagonalaInch() const {

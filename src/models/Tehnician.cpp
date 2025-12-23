@@ -10,8 +10,16 @@ Tehnician::Tehnician(int id, const string& nume, const string& cnp, const string
 Tehnician::~Tehnician() {}
 
 double Tehnician::getSalariu() const {
-    //! TODO: Implement salary calculation
-    return 0.0;
+    const double salariuBaza = 4000.0;
+    double bonusReparatii = 0.0;
+
+    for (auto cerere : reparatiiEfectuate) {
+        if (cerere != nullptr) {
+            bonusReparatii += 0.02 * cerere->getCostTotal();
+        }
+    }
+
+    return salariuBaza + bonusReparatii;
 }
 
 string Tehnician::getTip() const {

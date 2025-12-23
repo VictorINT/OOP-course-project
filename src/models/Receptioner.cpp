@@ -10,8 +10,8 @@ Receptioner::Receptioner(int id, const string& nume, const string& cnp) : Angaja
 Receptioner::~Receptioner() {}
 
 double Receptioner::getSalariu() const {
-    //! TODO: Implement salary calculation
-    return 0.0;
+    const double salariuBaza = 4000.0;
+    return salariuBaza;
 }
 
 string Receptioner::getTip() const {
