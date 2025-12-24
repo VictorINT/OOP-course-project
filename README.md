@@ -42,3 +42,9 @@ An OOP-based C++ application designed to manage an appliance repair service. It 
 
 
 * **Data Structures (STL)**: Vectors, Lists, and Queues for efficient data handling.
+
+---
+
+###   To do
+
+* Simulation doesn't fully work at the moment.
