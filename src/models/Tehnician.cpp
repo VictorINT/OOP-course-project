@@ -1,5 +1,6 @@
 #include "../../include/models/Tehnician.h"
 #include "../../include/models/CerereReparatie.h"
+#include <memory>
 
 using namespace std;
 
@@ -13,8 +14,9 @@ double Tehnician::getSalariu() const {
     const double salariuBaza = 4000.0;
     double bonusReparatii = 0.0;
 
-    for (auto cerere : reparatiiEfectuate) {
-        if (cerere != nullptr) {
+    for (auto& w : reparatiiEfectuate) {
+        auto cerere = w.lock();
+        if (cerere) {
             bonusReparatii += 0.02 * cerere->getCostTotal();
         }
     }
@@ -30,10 +32,15 @@ string Tehnician::getSpecializare() const {
     return specializare;
 }
 
-void Tehnician::adaugaReparatie(CerereReparatie* reparatie) {
+void Tehnician::adaugaReparatie(std::shared_ptr<CerereReparatie> reparatie) {
     reparatiiEfectuate.push_back(reparatie);
 }
 
-const vector<CerereReparatie*>& Tehnician::getReparatii() const {
-    return reparatiiEfectuate;
+std::vector<std::shared_ptr<CerereReparatie>> Tehnician::getReparatii() const {
+    std::vector<std::shared_ptr<CerereReparatie>> v;
+    for (auto& w : reparatiiEfectuate) {
+        auto s = w.lock();
+        if (s) v.push_back(s);
+    }
+    return v;
 }

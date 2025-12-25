@@ -2,6 +2,7 @@
 
 #include "Electrocasnic.h"
 #include <string>
+#include <memory>
 
 using namespace std;
 
@@ -17,10 +18,10 @@ enum class StatusCerere {
 class CerereReparatie {
 private:
     int id;
-    Electrocasnic* aparat;
+    std::shared_ptr<Electrocasnic> aparat;
     string descriereDefect;
     StatusCerere status;
-    Tehnician* tehnicianAlocat;
+    std::weak_ptr<Tehnician> tehnicianAlocat;
     long long dataInregistrare;
     long long dataFinalizare;
     double costPiese;
@@ -28,15 +29,15 @@ private:
 
 public:
     CerereReparatie();
-    CerereReparatie(int, Electrocasnic*, const string&);
+    CerereReparatie(int, std::shared_ptr<Electrocasnic>, const string&);
     ~CerereReparatie();
     
     // Getters
     int getId() const;
-    Electrocasnic* getAparat() const;
+    std::shared_ptr<Electrocasnic> getAparat() const;
     string getDescriereDefect() const;
     StatusCerere getStatus() const;
-    Tehnician* getTehnicianAlocat() const;
+    std::shared_ptr<Tehnician> getTehnicianAlocat() const;
     long long getDataInregistrare() const;
     long long getDataFinalizare() const;
     double getCostPiese() const;
@@ -44,7 +45,7 @@ public:
     
     // Setters
     void setStatus(StatusCerere);
-    void setTehnicianAlocat(Tehnician*);
+    void setTehnicianAlocat(std::shared_ptr<Tehnician>);
     void setDataFinalizare(long long);
     void setDataInregistrare(long long);
     void setCostPiese(double);

@@ -1,5 +1,6 @@
 #include "../../include/models/Receptioner.h"
 #include "../../include/models/CerereReparatie.h"
+#include <memory>
 
 using namespace std;
 
@@ -18,10 +19,15 @@ string Receptioner::getTip() const {
     return "Receptioner";
 }
 
-void Receptioner::adaugaCerere(CerereReparatie* cerere) {
+void Receptioner::adaugaCerere(std::shared_ptr<CerereReparatie> cerere) {
     cereriGestionate.push_back(cerere);
 }
 
-const vector<CerereReparatie*>& Receptioner::getCereri() const {
-    return cereriGestionate;
+std::vector<std::shared_ptr<CerereReparatie>> Receptioner::getCereri() const {
+    std::vector<std::shared_ptr<CerereReparatie>> v;
+    for (auto& w : cereriGestionate) {
+        auto s = w.lock();
+        if (s) v.push_back(s);
+    }
+    return v;
 }

@@ -7,79 +7,71 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
+#include <memory>
 
 using namespace std;
 
-ServiceManager* ServiceManager::instance = nullptr;
+namespace {
+    string trim(const string& value) {
+        const string whitespace = " \t\r\n";
+        size_t start = value.find_first_not_of(whitespace);
+        if (start == string::npos) return "";
+        size_t end = value.find_last_not_of(whitespace);
+        return value.substr(start, end - start + 1);
+    }
+}
 
 ServiceManager::ServiceManager() {}
 
 ServiceManager::~ServiceManager() {
-    // Cleanup
-    for (auto angajat : angajati) {
-        delete angajat;
-    }
-    for (auto electrocasnic : electrocasnice) {
-        delete electrocasnic;
-    }
-    for (auto cerere : cereri) {
-        delete cerere;
-    }
+    // shared_ptr cleanup automat
 }
 
-ServiceManager* ServiceManager::getInstance() {
-    if (instance == nullptr) {
-        instance = new ServiceManager();
-    }
+ServiceManager& ServiceManager::getInstance() {
+    static ServiceManager instance;
     return instance;
 }
 
-void ServiceManager::deleteInstance() {
-    if (instance != nullptr) {
-        delete instance;
-        instance = nullptr;
-    }
-}
-
-void ServiceManager::adaugaAngajat(Angajat* angajat) {
+void ServiceManager::adaugaAngajat(std::shared_ptr<Angajat> angajat) {
     angajati.push_back(angajat);
 }
 
-Angajat* ServiceManager::cautaAngajat(int id) {
+std::shared_ptr<Angajat> ServiceManager::cautaAngajat(int id) {
     for(auto angajat : angajati){
-        if(angajat->getId() == id)
+        if(angajat && angajat->getId() == id)
             return angajat;
     }
 
     return nullptr;
 }
 
-const vector<Angajat*>& ServiceManager::getAngajati() const {
+const std::vector<std::shared_ptr<Angajat>>& ServiceManager::getAngajati() const {
     return angajati;
 }
 
-void ServiceManager::adaugaElectrocasnic(Electrocasnic* electrocasnic) {
+void ServiceManager::adaugaElectrocasnic(std::shared_ptr<Electrocasnic> electrocasnic) {
     electrocasnice.push_back(electrocasnic);
 }
 
-const vector<Electrocasnic*>& ServiceManager::getElectrocasnice() const {
+const std::vector<std::shared_ptr<Electrocasnic>>& ServiceManager::getElectrocasnice() const {
     return electrocasnice;
 }
 
-void ServiceManager::adaugaCerere(CerereReparatie* cerere) {
+void ServiceManager::adaugaCerere(std::shared_ptr<CerereReparatie> cerere) {
     cereri.push_back(cerere);
 }
 
-CerereReparatie* ServiceManager::cautaCerere(int id) {
+std::shared_ptr<CerereReparatie> ServiceManager::cautaCerere(int id) {
     for (auto cerere : cereri){
-        if(cerere->getId() == id)
+        if(cerere && cerere->getId() == id)
             return cerere;
     }
 
     return nullptr;
 }
 
-const vector<CerereReparatie*>& ServiceManager::getCereri() const {
+const std::vector<std::shared_ptr<CerereReparatie>>& ServiceManager::getCereri() const {
     return cereri;
 }
 
@@ -102,7 +94,7 @@ void ServiceManager::incarcaAngajatiDinCSV(const string& filepath) {
         vector<string> cols;
         string col;
         while (getline(ss, col, ',')) {
-            cols.push_back(col);
+            cols.push_back(trim(col));
         }
 
         if (cols.size() < 4) {
@@ -116,7 +108,7 @@ void ServiceManager::incarcaAngajatiDinCSV(const string& filepath) {
         string cnp = cols[3];
         string extra = cols.size() > 4 ? cols[4] : "";
 
-        Angajat* angajat = Factory::creeazaAngajat(tip, id, nume, cnp, extra);
+        auto angajat = Factory::creeazaAngajat(tip, id, nume, cnp, extra);
         if (angajat != nullptr) {
             adaugaAngajat(angajat);
         }
@@ -142,7 +134,7 @@ void ServiceManager::incarcaElectrocasniceDinCSV(const string& filepath) {
         vector<string> cols;
         string col;
         while (getline(ss, col, ',')) {
-            cols.push_back(col);
+            cols.push_back(trim(col));
         }
 
         if (cols.size() < 4) {
@@ -156,7 +148,7 @@ void ServiceManager::incarcaElectrocasniceDinCSV(const string& filepath) {
         int anFabricatie = stoi(cols[3]);
         string parametri = cols.size() > 4 ? cols[4] : "";
 
-        Electrocasnic* aparat = Factory::creeazaElectrocasnic(tip, marca, model, anFabricatie, parametri);
+        auto aparat = Factory::creeazaElectrocasnic(tip, marca, model, anFabricatie, parametri);
         if (aparat != nullptr) {
             adaugaElectrocasnic(aparat);
         }
@@ -182,7 +174,7 @@ void ServiceManager::incarcaCereriDinCSV(const string& filepath) {
         vector<string> cols;
         string col;
         while (getline(ss, col, ',')) {
-            cols.push_back(col);
+            cols.push_back(trim(col));
         }
 
         if (cols.size() < 6) {
@@ -197,7 +189,7 @@ void ServiceManager::incarcaCereriDinCSV(const string& filepath) {
         string descriere = cols[4];
         string dataStr = cols[5];
 
-        Electrocasnic* aparat = nullptr;
+        std::shared_ptr<Electrocasnic> aparat = nullptr;
         for (auto existing : electrocasnice) {
             if (existing != nullptr && existing->getTip() == tipAparat && existing->getMarca() == marca && existing->getModel() == model) {
                 aparat = existing;
@@ -217,8 +209,16 @@ void ServiceManager::incarcaCereriDinCSV(const string& filepath) {
             continue;
         }
 
-        CerereReparatie* cerere = new CerereReparatie(id, aparat, descriere);
+        auto cerere = std::make_shared<CerereReparatie>(id, aparat, descriere);
         cerere->setDataInregistrare(DateUtils::parseTimestamp(dataStr));
         adaugaCerere(cerere);
     }
+}
+
+void ServiceManager::adaugaEveniment(long long timestamp, const string& mesaj) {
+    evenimente.push_back({timestamp, mesaj});
+}
+
+const vector<ServiceManager::EvenimentSimulare>& ServiceManager::getEvenimente() const {
+    return evenimente;
 }

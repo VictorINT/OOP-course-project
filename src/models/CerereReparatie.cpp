@@ -1,9 +1,10 @@
 #include "../../include/models/CerereReparatie.h"
 #include "../../include/models/Tehnician.h"
+#include <memory>
 
-CerereReparatie::CerereReparatie() : id(0), aparat(nullptr), descriereDefect(""), status(StatusCerere::IN_ASTEPTARE), tehnicianAlocat(nullptr), dataInregistrare(0), dataFinalizare(0), costPiese(0.0), costManopera(0.0) {}
+CerereReparatie::CerereReparatie() : id(0), aparat(nullptr), descriereDefect(""), status(StatusCerere::IN_ASTEPTARE), tehnicianAlocat(std::weak_ptr<Tehnician>()), dataInregistrare(0), dataFinalizare(0), costPiese(0.0), costManopera(0.0) {}
 
-CerereReparatie::CerereReparatie(int id, Electrocasnic* aparat, const string& descriere) : id(id), aparat(aparat), descriereDefect(descriere), status(StatusCerere::IN_ASTEPTARE), tehnicianAlocat(nullptr), dataInregistrare(0), dataFinalizare(0), costPiese(0.0), costManopera(0.0) {}
+CerereReparatie::CerereReparatie(int id, std::shared_ptr<Electrocasnic> aparat, const string& descriere) : id(id), aparat(aparat), descriereDefect(descriere), status(StatusCerere::IN_ASTEPTARE), tehnicianAlocat(std::weak_ptr<Tehnician>()), dataInregistrare(0), dataFinalizare(0), costPiese(0.0), costManopera(0.0) {}
 
 CerereReparatie::~CerereReparatie() {}
 
@@ -11,7 +12,7 @@ int CerereReparatie::getId() const {
     return id;
 }
 
-Electrocasnic* CerereReparatie::getAparat() const {
+std::shared_ptr<Electrocasnic> CerereReparatie::getAparat() const {
     return aparat;
 }
 
@@ -23,8 +24,8 @@ StatusCerere CerereReparatie::getStatus() const {
     return status;
 }
 
-Tehnician* CerereReparatie::getTehnicianAlocat() const {
-    return tehnicianAlocat;
+std::shared_ptr<Tehnician> CerereReparatie::getTehnicianAlocat() const {
+    return tehnicianAlocat.lock();
 }
 
 long long CerereReparatie::getDataInregistrare() const {
@@ -47,7 +48,7 @@ void CerereReparatie::setStatus(StatusCerere status) {
     this->status = status;
 }
 
-void CerereReparatie::setTehnicianAlocat(Tehnician* tehnician) {
+void CerereReparatie::setTehnicianAlocat(std::shared_ptr<Tehnician> tehnician) {
     tehnicianAlocat = tehnician;
 }
 

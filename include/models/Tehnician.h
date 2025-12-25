@@ -2,6 +2,7 @@
 #include "Angajat.h"
 #include <string>
 #include <vector>
+#include <memory>
 
 using namespace std;
 
@@ -10,7 +11,7 @@ class CerereReparatie;
 class Tehnician : public Angajat {
 private:
     string specializare;
-    vector<CerereReparatie*> reparatiiEfectuate;
+    std::vector<std::weak_ptr<CerereReparatie>> reparatiiEfectuate;
 
 public:
     Tehnician();
@@ -21,6 +22,6 @@ public:
     string getTip() const override;
     
     string getSpecializare() const;
-    void adaugaReparatie(CerereReparatie*);
-    const vector<CerereReparatie*>& getReparatii() const;
+    void adaugaReparatie(std::shared_ptr<CerereReparatie>);
+    std::vector<std::shared_ptr<CerereReparatie>> getReparatii() const;
 };

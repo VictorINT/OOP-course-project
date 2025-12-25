@@ -1,6 +1,8 @@
 #pragma once
 #include "../models/CerereReparatie.h"
 #include <vector>
+#include <string>
+#include <memory>
 
 using namespace std;
 
@@ -20,6 +22,9 @@ public:
     void setTimpCurent(long long);
     
 private:
+    void initializeazaTimpStart();
+    long long calculeazaDurataEstimata(const std::shared_ptr<CerereReparatie>&) const;
+    bool specializarePotrivita(const string&, const string&) const;
     void alocaTehniciAutomatPentruCereri();
     void actualizeazaStatusuriCereri();
 };

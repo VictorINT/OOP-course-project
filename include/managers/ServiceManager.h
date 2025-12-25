@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <memory>
 #include "../models/Angajat.h"
 #include "../models/Electrocasnic.h"
 #include "../models/CerereReparatie.h"
@@ -8,38 +9,49 @@
 using namespace std;
 
 class ServiceManager {
+public:
+    struct EvenimentSimulare {
+        long long timestamp;
+        string mesaj;
+    };
+
 private:
-    static ServiceManager* instance;
-    vector<Angajat*> angajati;
-    vector<Electrocasnic*> electrocasnice;
-    vector<CerereReparatie*> cereri;
+    // Stocare cu shared_ptr (owner: ServiceManager)
+    std::vector<std::shared_ptr<Angajat>> angajati;
+    std::vector<std::shared_ptr<Electrocasnic>> electrocasnice;
+    std::vector<std::shared_ptr<CerereReparatie>> cereri;
+    vector<EvenimentSimulare> evenimente;
     
     ServiceManager();
     ~ServiceManager();
 
 public:
-    static ServiceManager* getInstance();
-    static void deleteInstance();
+    // Singleton – acces prin referinta (fara raw pointer)
+    static ServiceManager& getInstance();
     
     ServiceManager(const ServiceManager&) = delete;
     ServiceManager& operator=(const ServiceManager&) = delete;
     
     // Angajati management
-    void adaugaAngajat(Angajat*);
-    Angajat* cautaAngajat(int);
-    const vector<Angajat*>& getAngajati() const;
+    void adaugaAngajat(std::shared_ptr<Angajat>);
+    std::shared_ptr<Angajat> cautaAngajat(int);
+    const std::vector<std::shared_ptr<Angajat>>& getAngajati() const;
     
     // Electrocasnice management
-    void adaugaElectrocasnic(Electrocasnic*);
-    const vector<Electrocasnic*>& getElectrocasnice() const;
+    void adaugaElectrocasnic(std::shared_ptr<Electrocasnic>);
+    const std::vector<std::shared_ptr<Electrocasnic>>& getElectrocasnice() const;
     
     // Cereri management
-    void adaugaCerere(CerereReparatie*);
-    CerereReparatie* cautaCerere(int);
-    const vector<CerereReparatie*>& getCereri() const;
+    void adaugaCerere(std::shared_ptr<CerereReparatie>);
+    std::shared_ptr<CerereReparatie> cautaCerere(int);
+    const std::vector<std::shared_ptr<CerereReparatie>>& getCereri() const;
     
     // Incarcari din fisiere
     void incarcaAngajatiDinCSV(const string&);
     void incarcaElectrocasniceDinCSV(const string&);
     void incarcaCereriDinCSV(const string&);
+
+    // Evenimente simulare
+    void adaugaEveniment(long long, const string&);
+    const vector<EvenimentSimulare>& getEvenimente() const;
 };

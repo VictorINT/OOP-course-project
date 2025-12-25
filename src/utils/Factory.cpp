@@ -9,17 +9,18 @@
 #include <vector>
 #include <algorithm>
 #include <cctype>
+#include <memory>
 
 using namespace std;
 
-Angajat* Factory::creeazaAngajat(const string& tip, int id, 
+std::shared_ptr<Angajat> Factory::creeazaAngajat(const string& tip, int id, 
                                  const string& nume, 
                                  const string& cnp,
                                  const string& parametruExtra) {
     if (tip == "Receptioner") {
-        return new Receptioner(id, nume, cnp);
+        return std::make_shared<Receptioner>(id, nume, cnp);
     } else if (tip == "Tehnician") {
-        return new Tehnician(id, nume, cnp, parametruExtra);
+        return std::make_shared<Tehnician>(id, nume, cnp, parametruExtra);
     } else if (tip == "Supervizor") {
         double spor = 0.2; // default leadership bonus 20%
         if (!parametruExtra.empty()) {
@@ -29,12 +30,12 @@ Angajat* Factory::creeazaAngajat(const string& tip, int id,
                 spor = 0.2;
             }
         }
-        return new Supervizor(id, nume, cnp, spor);
+        return std::make_shared<Supervizor>(id, nume, cnp, spor);
     }
     return nullptr;
 }
 
-Electrocasnic* Factory::creeazaElectrocasnic(const string& tip,
+std::shared_ptr<Electrocasnic> Factory::creeazaElectrocasnic(const string& tip,
                                              const string& marca,
                                              const string& model,
                                              int anFabricatie,
@@ -72,19 +73,19 @@ Electrocasnic* Factory::creeazaElectrocasnic(const string& tip,
     if (tip == "Frigider") {
         bool areCongelator = tokens.size() > 0 ? toBool(tokens[0]) : false;
         int capacitate = tokens.size() > 1 ? toIntSafe(tokens[1], 0) : 0;
-        return new Frigider(marca, model, anFabricatie, areCongelator, capacitate);
+        return std::make_shared<Frigider>(marca, model, anFabricatie, areCongelator, capacitate);
     }
 
     if (tip == "Televizor") {
         double diagonala = tokens.size() > 0 ? toDoubleSafe(tokens[0], 0.0) : 0.0;
         bool smart = tokens.size() > 1 ? toBool(tokens[1]) : false;
-        return new Televizor(marca, model, anFabricatie, diagonala, smart);
+        return std::make_shared<Televizor>(marca, model, anFabricatie, diagonala, smart);
     }
 
     if (tip == "MasinaSpalat") {
         int capacitate = tokens.size() > 0 ? toIntSafe(tokens[0], 0) : 0;
         int turatie = tokens.size() > 1 ? toIntSafe(tokens[1], 0) : 0;
-        return new MasinaSpalat(marca, model, anFabricatie, capacitate, turatie);
+        return std::make_shared<MasinaSpalat>(marca, model, anFabricatie, capacitate, turatie);
     }
 
     return nullptr;

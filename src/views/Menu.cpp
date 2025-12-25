@@ -3,11 +3,13 @@
 #include "../../include/managers/Simulator.h"
 #include "../../include/managers/ReportGenerator.h"
 #include "../../include/utils/Factory.h"
+#include "../../include/utils/DateUtils.h"
 #include "../../include/models/Receptioner.h"
 #include "../../include/models/Tehnician.h"
 #include "../../include/models/Supervizor.h"
 #include <iostream>
 #include <limits>
+#include <memory>
 
 using namespace std;
 
@@ -64,7 +66,7 @@ void Menu::ruleaza() {
 
 void Menu::afiseazaAngajati() {
     clearScreen();
-    const auto& angajati = ServiceManager::getInstance()->getAngajati();
+    const auto& angajati = ServiceManager::getInstance().getAngajati();
     if (angajati.empty()) {
         cout << "Nu exista angajati inregistrati." << '\n';
     } else {
@@ -94,21 +96,21 @@ void Menu::adaugaAngajat() {
     cout << "CNP: ";
     string cnp; getline(cin, cnp);
 
-    Angajat* angajat = nullptr;
+    std::shared_ptr<Angajat> angajat = nullptr;
     if (tipOpt == 1) {
-        angajat = new Receptioner(id, nume, cnp);
+        angajat = std::make_shared<Receptioner>(id, nume, cnp);
     } else if (tipOpt == 2) {
         cout << "Specializare: ";
         string spec; getline(cin, spec);
-        angajat = new Tehnician(id, nume, cnp, spec);
+        angajat = std::make_shared<Tehnician>(id, nume, cnp, spec);
     } else {
         cout << "Spor conducere (0.0 - 1.0): ";
         double spor; cin >> spor; cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        angajat = new Supervizor(id, nume, cnp, spor);
+        angajat = std::make_shared<Supervizor>(id, nume, cnp, spor);
     }
 
     if (angajat != nullptr) {
-        ServiceManager::getInstance()->adaugaAngajat(angajat);
+        ServiceManager::getInstance().adaugaAngajat(angajat);
         cout << "Angajat adaugat cu succes." << '\n';
     }
     pausaConsola();
@@ -116,7 +118,7 @@ void Menu::adaugaAngajat() {
 
 void Menu::afiseazaCereri() {
     clearScreen();
-    const auto& cereri = ServiceManager::getInstance()->getCereri();
+    const auto& cereri = ServiceManager::getInstance().getCereri();
     if (cereri.empty()) {
         cout << "Nu exista cereri." << '\n';
     } else {
@@ -152,16 +154,17 @@ void Menu::adaugaCerere() {
     cout << "Parametri extra (separati prin ';'): ";
     string param; getline(cin, param);
 
-    Electrocasnic* aparat = Factory::creeazaElectrocasnic(tip, marca, model, an, param);
+    auto aparat = Factory::creeazaElectrocasnic(tip, marca, model, an, param);
     if (aparat != nullptr) {
-        ServiceManager::getInstance()->adaugaElectrocasnic(aparat);
+        ServiceManager::getInstance().adaugaElectrocasnic(aparat);
     }
 
     cout << "Descriere defect: ";
     string descriere; getline(cin, descriere);
 
-    CerereReparatie* cerere = new CerereReparatie(id, aparat, descriere);
-    ServiceManager::getInstance()->adaugaCerere(cerere);
+    auto cerere = std::make_shared<CerereReparatie>(id, aparat, descriere);
+    cerere->setDataInregistrare(DateUtils::getTimpCurent());
+    ServiceManager::getInstance().adaugaCerere(cerere);
     cout << "Cerere adaugata." << '\n';
     pausaConsola();
 }
@@ -170,7 +173,9 @@ void Menu::ruleazaSimulare() {
     clearScreen();
     cout << "Numar de tick-uri de rulat: ";
     int ticks = citesteOptiune(1, 1000000);
-    Simulator simulator;
+    cout << "Durata unui tick (in secunde): ";
+    int tickDurata = citesteOptiune(1, 86400);
+    Simulator simulator(tickDurata);
     simulator.ruleazaSimulare(ticks);
     cout << "Simulare finalizata." << '\n';
     pausaConsola();
@@ -183,16 +188,17 @@ void Menu::genereazaRapoarte() {
     generator.genereazaRaportCereri("reports/cereri.csv");
     generator.genereazaRaportFinanciar("reports/financiar.csv");
     generator.genereazaRaportPerformanta("reports/performanta.csv");
+    generator.genereazaRaportEvenimente("reports/evenimente.csv");
     cout << "Rapoarte generate in folderul reports." << '\n';
     pausaConsola();
 }
 
 void Menu::incarcaDate() {
     clearScreen();
-    auto manager = ServiceManager::getInstance();
-    manager->incarcaAngajatiDinCSV("tests/angajati.csv");
-    manager->incarcaElectrocasniceDinCSV("tests/electrocasnice.csv");
-    manager->incarcaCereriDinCSV("tests/cereri.csv");
+    auto& manager = ServiceManager::getInstance();
+    manager.incarcaAngajatiDinCSV("tests/angajati.csv");
+    manager.incarcaElectrocasniceDinCSV("tests/electrocasnice.csv");
+    manager.incarcaCereriDinCSV("tests/cereri.csv");
     cout << "Date incarcate din fisierele din folderul tests." << '\n';
     pausaConsola();
 }
@@ -207,8 +213,9 @@ void Menu::clearScreen() {
 
 void Menu::pausaConsola() {
     cout << "\nApasati ENTER pentru a continua...";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cin.get();
+    cin.clear();
+    string tmp;
+    getline(cin, tmp);
 }
 
 int Menu::citesteOptiune(int min, int max) {

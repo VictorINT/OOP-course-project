@@ -9,9 +9,6 @@ int main() {
         Menu menu;
         menu.ruleaza();
         
-        // Cleanup
-        ServiceManager::deleteInstance();
-        
     } catch (const exception& e) {
         cerr << "Eroare: " << e.what() << endl;
         return 1;

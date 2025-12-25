@@ -1,6 +1,7 @@
 #pragma once
 #include "Angajat.h"
 #include <vector>
+#include <memory>
 
 using namespace std;
 
@@ -8,7 +9,7 @@ class CerereReparatie;
 
 class Receptioner : public Angajat {
 private:
-    vector<CerereReparatie*> cereriGestionate;
+    std::vector<std::weak_ptr<CerereReparatie>> cereriGestionate;
 
 public:
     Receptioner();
@@ -18,6 +19,6 @@ public:
     double getSalariu() const override;
     string getTip() const override;
     
-    void adaugaCerere(CerereReparatie*);
-    const vector<CerereReparatie*>& getCereri() const;
+    void adaugaCerere(std::shared_ptr<CerereReparatie>);
+    std::vector<std::shared_ptr<CerereReparatie>> getCereri() const;
 };

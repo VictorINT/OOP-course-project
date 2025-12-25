@@ -1,8 +1,11 @@
 #include "../../include/managers/ReportGenerator.h"
 #include "../../include/managers/ServiceManager.h"
 #include "../../include/models/Tehnician.h"
+#include "../../include/utils/DateUtils.h"
+#include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <memory>
 
 #include <iostream>
 
@@ -23,6 +26,7 @@ namespace {
 ReportGenerator::ReportGenerator() {}
 
 void ReportGenerator::genereazaRaportAngajati(const string& filepath) {
+    asiguraDirector(filepath);
     ofstream out(filepath);
     if (!out.is_open()) {
         cerr << "Nu s-a putut scrie raportul angajati: " << filepath << "\n";
@@ -30,9 +34,9 @@ void ReportGenerator::genereazaRaportAngajati(const string& filepath) {
     }
 
     out << "ID,Tip,Nume,CNP,Salariu" << '\n';
-    const auto& angajati = ServiceManager::getInstance()->getAngajati();
+    const auto& angajati = ServiceManager::getInstance().getAngajati();
     for (auto angajat : angajati) {
-        if (angajat == nullptr) continue;
+        if (!angajat) continue;
         out << angajat->getId() << ','
             << escapeCSV(angajat->getTip()) << ','
             << escapeCSV(angajat->getNume()) << ','
@@ -42,6 +46,7 @@ void ReportGenerator::genereazaRaportAngajati(const string& filepath) {
 }
 
 void ReportGenerator::genereazaRaportCereri(const string& filepath) {
+    asiguraDirector(filepath);
     ofstream out(filepath);
     if (!out.is_open()) {
         cerr << "Nu s-a putut scrie raportul cereri: " << filepath << "\n";
@@ -49,14 +54,15 @@ void ReportGenerator::genereazaRaportCereri(const string& filepath) {
     }
 
     out << "ID,Tip,Marca,Model,Status,Tehnician,CostTotal" << '\n';
-    const auto& cereri = ServiceManager::getInstance()->getCereri();
+    const auto& cereri = ServiceManager::getInstance().getCereri();
     for (auto cerere : cereri) {
-        if (cerere == nullptr) continue;
-        Electrocasnic* aparat = cerere->getAparat();
+        if (!cerere) continue;
+        auto aparat = cerere->getAparat();
         string tip = aparat ? aparat->getTip() : "";
         string marca = aparat ? aparat->getMarca() : "";
         string model = aparat ? aparat->getModel() : "";
-        string tehnician = cerere->getTehnicianAlocat() ? cerere->getTehnicianAlocat()->getNume() : "";
+        auto tehnicianPtr = cerere->getTehnicianAlocat();
+        string tehnician = tehnicianPtr ? tehnicianPtr->getNume() : "";
         out << cerere->getId() << ','
             << escapeCSV(tip) << ','
             << escapeCSV(marca) << ','
@@ -68,6 +74,7 @@ void ReportGenerator::genereazaRaportCereri(const string& filepath) {
 }
 
 void ReportGenerator::genereazaRaportFinanciar(const string& filepath) {
+    asiguraDirector(filepath);
     ofstream out(filepath);
     if (!out.is_open()) {
         cerr << "Nu s-a putut scrie raportul financiar: " << filepath << "\n";
@@ -77,9 +84,9 @@ void ReportGenerator::genereazaRaportFinanciar(const string& filepath) {
     double totalFinalizat = 0.0;
     double totalInLucru = 0.0;
 
-    const auto& cereri = ServiceManager::getInstance()->getCereri();
+    const auto& cereri = ServiceManager::getInstance().getCereri();
     for (auto cerere : cereri) {
-        if (cerere == nullptr) continue;
+        if (!cerere) continue;
         if (cerere->getStatus() == StatusCerere::FINALIZATA) {
             totalFinalizat += cerere->getCostTotal();
         } else if (cerere->getStatus() == StatusCerere::IN_LUCRU) {
@@ -93,19 +100,20 @@ void ReportGenerator::genereazaRaportFinanciar(const string& filepath) {
 }
 
 void ReportGenerator::genereazaRaportPerformanta(const string& filepath) {
+    asiguraDirector(filepath);
     ofstream out(filepath);
     if (!out.is_open()) {
         cerr << "Nu s-a putut scrie raportul performanta: " << filepath << "\n";
         return;
     }
 
-    const auto& angajati = ServiceManager::getInstance()->getAngajati();
-    Tehnician* topTech = nullptr;
+    const auto& angajati = ServiceManager::getInstance().getAngajati();
+    std::shared_ptr<Tehnician> topTech = nullptr;
     size_t maxReparatii = 0;
 
     for (auto angajat : angajati) {
-        Tehnician* tech = dynamic_cast<Tehnician*>(angajat);
-        if (tech == nullptr) continue;
+        auto tech = std::dynamic_pointer_cast<Tehnician>(angajat);
+        if (!tech) continue;
         size_t cnt = tech->getReparatii().size();
         if (cnt > maxReparatii) {
             maxReparatii = cnt;
@@ -119,6 +127,22 @@ void ReportGenerator::genereazaRaportPerformanta(const string& filepath) {
             << escapeCSV(topTech->getSpecializare()) << ','
             << topTech->getReparatii().size() << ','
             << topTech->getSalariu() << '\n';
+    }
+}
+
+void ReportGenerator::genereazaRaportEvenimente(const string& filepath) {
+    asiguraDirector(filepath);
+    ofstream out(filepath);
+    if (!out.is_open()) {
+        cerr << "Nu s-a putut scrie raportul evenimente: " << filepath << "\n";
+        return;
+    }
+
+    out << "Timestamp,Eveniment" << '\n';
+    const auto& evenimente = ServiceManager::getInstance().getEvenimente();
+    for (const auto& ev : evenimente) {
+        string ts = DateUtils::formatTimestamp(ev.timestamp);
+        out << escapeCSV(ts) << ',' << escapeCSV(ev.mesaj) << '\n';
     }
 }
 
@@ -136,4 +160,16 @@ string ReportGenerator::escapeCSV(const string& field) {
         escaped.push_back(c);
     }
     return string("\"") + escaped + string("\"");
+}
+
+void ReportGenerator::asiguraDirector(const string& filepath) {
+    try {
+        std::filesystem::path p(filepath);
+        auto dir = p.parent_path();
+        if (!dir.empty()) {
+            std::filesystem::create_directories(dir);
+        }
+    } catch (const std::exception& e) {
+        cerr << "Eroare la crearea directorului pentru raport: " << e.what() << "\n";
+    }
 }
