@@ -1,50 +1,141 @@
-# FixItNow Service Simulator
+# FixItNow - Appliance Repair Service Management System
 
-An OOP-based C++ application designed to manage an appliance repair service. It handles employees, repair requests, and simulates real-time repairs while providing detailed financial and operational reports.
-
----
-
-### Core Features
-
-* **Employee Administration**: Add, edit, or remove staff; unique IDs, name validation (3-30 chars), and strict CNP validation.
-
-
-* **Appliance Management**: Dynamic catalog of repairable models (fridges, TVs, washers) with specific technical attributes.
-
-
-* **Request Lifecycle**: Automatic allocation based on technician specialization, workload (max 3 active tasks), and historical load balancing.
-
-
-* **Real-Time Simulation**: Time-tick processing (1s) that updates repair duration, finishes tasks, and manages the waiting queue.
-
-
-* **Salary Engine**: Base salary calculation with loyalty bonuses (+5%/3 years), transport bonuses, technician commissions (2% of repairs), and supervisor leadership perks (20%).
-
-
-* **Reporting**: Automated CSV reports for top earners, long repairs, and pending request groupings.
-
-
+**C++ OOP Project** - Real-time simulation and management of appliance repair service
 
 ---
 
-### Technical Stack (Concepts & Patterns)
+## Overview
 
-* **Design Patterns**: Factory Method (for object creation) and Singleton (for service management).
+FixItNow is an authorized service center for appliance repairs. The application manages employees (Technicians, Receptionists, Supervisor), repair requests, and simulates the repair process in real-time with automatic load balancing.
 
-
-* **OOP Principles**: Inheritance, Polymorphism (virtual functions for salaries/details), and Encapsulation.
-
-
-* **SOLID Principles**: Modular architecture and single-responsibility classes.
-
-
-* **Modern C++**: Smart Pointers (memory management), Lambda expressions (sorting/filtering), and Uniform Initialization.
-
-
-* **Data Structures (STL)**: Vectors, Lists, and Queues for efficient data handling.
+**Note**: Code and comments are written in Romanian as required by the course instructor.
 
 ---
 
-###   To do
+## Quick Start
 
-* Simulation doesn't fully work at the moment.
+### Build
+
+```bash
+make
+```
+
+### Run
+
+```bash
+./bin/fixitnow
+```
+
+### Clean
+
+```bash
+make clean
+```
+
+---
+
+## Key Features
+
+- **Employee Management**: Add, modify, delete employees with CNP validation
+- **Appliance Management**: Track repairable models (Refrigerators, TVs, Washing Machines)
+- **Request Processing**: Automatic assignment to available technicians
+- **Real-time Simulation**: Tick-based processing with load balancing
+- **Reporting**: Automated CSV/TXT reports generation
+
+---
+
+## Minimum Requirements
+
+Service requires at minimum:
+- **3 Technicians**
+- **1 Receptionist**
+- **1 Supervisor**
+
+---
+
+## Project Structure
+
+```
+src/
+├── models/          - Data classes (Employee, Appliance, Request)
+├── factories/       - Factory pattern for object creation
+├── managers/        - ServiceManager (Singleton) - central coordination
+├── utils/           - Utilities (CNP validator, file reader, timestamps)
+├── reporting/       - CSV/TXT report generation
+├── exceptions/      - Custom exception classes
+└── main.cpp         - Interactive menu system
+
+tests/               - Test files (valid/invalid data, scenarios)
+tools/               - Utility tools (CNP generator + scripts)
+rapoarte/            - Generated reports folder
+```
+
+---
+
+## Design Patterns
+
+- **Singleton**: ServiceManager (central coordinator)
+- **Factory**: EmployeeFactory, ElectrocasnicFactory (object creation)
+
+---
+
+## Testing
+
+Test files are in `tests/` folder:
+- `angajati_valizi.csv` - 7 valid employees
+- `aparate_reparabile.csv` - 12 repairable appliance models
+- `cereri_valide.csv` - 10 valid repair requests
+- `scenario_load_balancing.csv` - Load balancing test
+
+When asked for a filename, just enter `angajati_valizi.csv` (no need for `tests/` prefix - it's added automatically).
+
+---
+
+## Quick Demo
+
+```bash
+./bin/fixitnow
+
+# In menu:
+1 → 6 → angajati_valizi.csv → 0
+2 → 5 → aparate_reparabile.csv → 0
+3 → 1 → cereri_valide.csv
+3 → 2 → 60 (seconds)
+
+# Reports will be generated in rapoarte/
+```
+
+---
+
+## Documentation
+
+Full technical documentation (in Romanian, as required) is available in LaTeX format:
+- `docs/documentatie.tex` - Complete documentation with diagrams
+- `docs/diagrams/*.png` - Class diagrams and workflow diagrams
+
+To generate PDF:
+```bash
+cd docs
+pdflatex documentatie.tex
+```
+
+---
+
+## Technologies
+
+- **C++17**: Modern standard with smart pointers, STL algorithms
+- **STL**: vector, map, queue, string, chrono
+- **Design Patterns**: Singleton, Factory (x2)
+- **Principles**: OOP, SOLID
+
+---
+
+## Author
+
+Academic project for OOP course - FixItNow Service Management System
+
+---
+
+## License
+
+Educational purpose only.

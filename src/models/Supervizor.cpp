@@ -1,26 +1,21 @@
-#include "../../include/models/Supervizor.h"
+#include "Supervizor.h"
 
 using namespace std;
 
-Supervizor::Supervizor() : Angajat(), sporConducere(0.0) {}
+Supervizor::Supervizor(const string& n, const string& p, 
+                       const string& c, const string& data, 
+                       const string& o)
+    : Employee(n, p, c, data, o) {}
 
-Supervizor::Supervizor(int id, const string& nume, const string& cnp, double sporConducere) : Angajat(id, nume, cnp), sporConducere(sporConducere) {}
-
-Supervizor::~Supervizor() {}
-
-double Supervizor::getSalariu() const {
-    const double salariuBaza = 4000.0;
-    return salariuBaza + salariuBaza * sporConducere;
+double Supervizor::calculeazaSalariu() const {
+    double salariu = 4000.0;  // Salariu de baza
+    salariu += calculeazaBonusFidelitate();  // Bonus fidelitate
+    salariu += calculeazaPrimaTransport();  // Prima transport
+    salariu += 4000.0 * 0.20;  // Spor de conducere (20%)
+    return salariu;
 }
 
-string Supervizor::getTip() const {
+string Supervizor::getTipAngajat() const {
     return "Supervizor";
 }
 
-double Supervizor::getSporConducere() const {
-    return sporConducere;
-}
-
-void Supervizor::setSporConducere(double spor) {
-    sporConducere = spor;
-}

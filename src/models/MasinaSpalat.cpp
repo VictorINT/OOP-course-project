@@ -1,26 +1,23 @@
-#include "../../include/models/MasinaSpalat.h"
-#include <sstream>
+#include "MasinaSpalat.h"
+#include <iostream>
 
 using namespace std;
 
-MasinaSpalat::MasinaSpalat() : Electrocasnic(), capacitateKg(0), turatieStoarcere(0) {}
+MasinaSpalat::MasinaSpalat(const string& marca, const string& model, 
+                           int an, double pret, double cap)
+    : Electrocasnic("MasinaSpalat", marca, model, an, pret), 
+      capacitate(cap) {}
 
-MasinaSpalat::MasinaSpalat(const string& marca, const string& model, int anFabricatie, int capacitateKg, int turatieStoarcere) : Electrocasnic("MasinaSpalat", marca, model, anFabricatie), capacitateKg(capacitateKg), turatieStoarcere(turatieStoarcere) {}
-
-MasinaSpalat::~MasinaSpalat() {}
-
-string MasinaSpalat::getDetalii() const {
-    ostringstream oss;
-    oss << "MasinaSpalat " << marca << " " << model << " (" << anFabricatie << ")"
-        << " | capacitate: " << capacitateKg << " kg"
-        << " | turatie: " << turatieStoarcere << " rpm";
-    return oss.str();
+double MasinaSpalat::getCapacitate() const {
+    return capacitate;
 }
 
-int MasinaSpalat::getCapacitateKg() const {
-    return capacitateKg;
+void MasinaSpalat::afiseazaDetalii() const {
+    Electrocasnic::afiseazaDetalii();
+    cout << "Capacitate: " << capacitate << " kg\n";
 }
 
-int MasinaSpalat::getTuratieStoarcere() const {
-    return turatieStoarcere;
+string MasinaSpalat::getDetaliiSpecifice() const {
+    return "Capacitate: " + to_string(capacitate) + " kg";
 }
+

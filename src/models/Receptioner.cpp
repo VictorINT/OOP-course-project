@@ -1,33 +1,34 @@
-#include "../../include/models/Receptioner.h"
-#include "../../include/models/CerereReparatie.h"
-#include <memory>
+#include "Receptioner.h"
+#include <iostream>
 
 using namespace std;
 
-Receptioner::Receptioner() : Angajat() {}
+Receptioner::Receptioner(const string& n, const string& p, 
+                         const string& c, const string& data, 
+                         const string& o)
+    : Employee(n, p, c, data, o) {}
 
-Receptioner::Receptioner(int id, const string& nume, const string& cnp) : Angajat(id, nume, cnp) {}
-
-Receptioner::~Receptioner() {}
-
-double Receptioner::getSalariu() const {
-    const double salariuBaza = 4000.0;
-    return salariuBaza;
+double Receptioner::calculeazaSalariu() const {
+    double salariu = 4000.0;  // Salariu de baza
+    salariu += calculeazaBonusFidelitate();  // Bonus fidelitate
+    salariu += calculeazaPrimaTransport();  // Prima transport
+    return salariu;
 }
 
-string Receptioner::getTip() const {
+string Receptioner::getTipAngajat() const {
     return "Receptioner";
 }
 
-void Receptioner::adaugaCerere(std::shared_ptr<CerereReparatie> cerere) {
-    cereriGestionate.push_back(cerere);
+void Receptioner::afiseazaDetalii() const {
+    Employee::afiseazaDetalii();
+    cout << "Numar cereri inregistrate: " << idCereriInregistrate.size() << "\n";
 }
 
-std::vector<std::shared_ptr<CerereReparatie>> Receptioner::getCereri() const {
-    std::vector<std::shared_ptr<CerereReparatie>> v;
-    for (auto& w : cereriGestionate) {
-        auto s = w.lock();
-        if (s) v.push_back(s);
-    }
-    return v;
+void Receptioner::adaugaCerereInregistrata(int idCerere) {
+    idCereriInregistrate.push_back(idCerere);
 }
+
+const vector<int>& Receptioner::getCereriInregistrate() const {
+    return idCereriInregistrate;
+}
+

@@ -1,26 +1,23 @@
-#include "../../include/models/Frigider.h"
-#include <sstream>
+#include "Frigider.h"
+#include <iostream>
 
 using namespace std;
 
-Frigider::Frigider() : Electrocasnic(), areCongelator(false), capacitateLitri(0) {}
-
-Frigider::Frigider(const string& marca, const string& model, int anFabricatie, bool areCongelator, int capacitateLitri) : Electrocasnic("Frigider", marca, model, anFabricatie), areCongelator(areCongelator), capacitateLitri(capacitateLitri) {}
-
-Frigider::~Frigider() {}
-
-string Frigider::getDetalii() const {
-    ostringstream oss;
-    oss << "Frigider " << marca << " " << model << " (" << anFabricatie << ")"
-        << " | congelator: " << (areCongelator ? "da" : "nu")
-        << " | capacitate: " << capacitateLitri << " L";
-    return oss.str();
-}
+Frigider::Frigider(const string& marca, const string& model, 
+                   int an, double pret, bool congelator)
+    : Electrocasnic("Frigider", marca, model, an, pret), 
+      areCongelator(congelator) {}
 
 bool Frigider::getAreCongelator() const {
     return areCongelator;
 }
 
-int Frigider::getCapacitateLitri() const {
-    return capacitateLitri;
+void Frigider::afiseazaDetalii() const {
+    Electrocasnic::afiseazaDetalii();
+    cout << "Are congelator: " << (areCongelator ? "Da" : "Nu") << "\n";
 }
+
+string Frigider::getDetaliiSpecifice() const {
+    return string("Are congelator: ") + (areCongelator ? "Da" : "Nu");
+}
+

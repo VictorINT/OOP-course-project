@@ -1,86 +1,69 @@
-#include "../../include/models/CerereReparatie.h"
-#include "../../include/models/Tehnician.h"
-#include <memory>
+#include "CerereReparatie.h"
+#include "Tehnician.h"
+#include "../exceptions/ServiceException.h"
 
-CerereReparatie::CerereReparatie() : id(0), aparat(nullptr), descriereDefect(""), status(StatusCerere::IN_ASTEPTARE), tehnicianAlocat(std::weak_ptr<Tehnician>()), dataInregistrare(0), dataFinalizare(0), costPiese(0.0), costManopera(0.0) {}
+using namespace std;
 
-CerereReparatie::CerereReparatie(int id, std::shared_ptr<Electrocasnic> aparat, const string& descriere) : id(id), aparat(aparat), descriereDefect(descriere), status(StatusCerere::IN_ASTEPTARE), tehnicianAlocat(std::weak_ptr<Tehnician>()), dataInregistrare(0), dataFinalizare(0), costPiese(0.0), costManopera(0.0) {}
+int CerereReparatie::nextId = 1;
 
-CerereReparatie::~CerereReparatie() {}
-
-int CerereReparatie::getId() const {
-    return id;
-}
-
-std::shared_ptr<Electrocasnic> CerereReparatie::getAparat() const {
-    return aparat;
-}
-
-string CerereReparatie::getDescriereDefect() const {
-    return descriereDefect;
-}
-
-StatusCerere CerereReparatie::getStatus() const {
-    return status;
-}
-
-std::shared_ptr<Tehnician> CerereReparatie::getTehnicianAlocat() const {
-    return tehnicianAlocat.lock();
-}
-
-long long CerereReparatie::getDataInregistrare() const {
-    return dataInregistrare;
-}
-
-long long CerereReparatie::getDataFinalizare() const {
-    return dataFinalizare;
-}
-
-double CerereReparatie::getCostPiese() const {
-    return costPiese;
-}
-
-double CerereReparatie::getCostManopera() const {
-    return costManopera;
-}
-
-void CerereReparatie::setStatus(StatusCerere status) {
-    this->status = status;
-}
-
-void CerereReparatie::setTehnicianAlocat(std::shared_ptr<Tehnician> tehnician) {
-    tehnicianAlocat = tehnician;
-}
-
-void CerereReparatie::setDataFinalizare(long long data) {
-    dataFinalizare = data;
-}
-
-void CerereReparatie::setDataInregistrare(long long data) {
-    dataInregistrare = data;
-}
-
-void CerereReparatie::setCostPiese(double cost) {
-    costPiese = cost;
-}
-
-void CerereReparatie::setCostManopera(double cost) {
-    costManopera = cost;
-}
-
-double CerereReparatie::getCostTotal() const {
-    return costPiese + costManopera;
-}
-
-int CerereReparatie::getDurataReparatie() const {
-    if (dataFinalizare <= 0 || dataInregistrare <= 0) {
-        return 0;
+CerereReparatie::CerereReparatie(shared_ptr<Electrocasnic> app, 
+                                 const string& ts, int comp)
+    : id(nextId++), aparat(app), timestamp(ts), complexitate(comp),
+      durataEstimata(0), durataRamasa(0), pretReparatie(0.0),
+      status("in_asteptare"), tehnicianAlocat(nullptr) {
+    
+    if (complexitate < 0 || complexitate > 5) {
+        throw InvalidDataException("Complexitate trebuie sa fie intre 0 si 5");
     }
-
-    long long durata = dataFinalizare - dataInregistrare;
-    if (durata < 0) {
-        return 0;
-    }
-
-    return static_cast<int>(durata);
+    
+    calculeazaDurata();
+    calculeazaPret();
 }
+
+int CerereReparatie::getId() const { return id; }
+shared_ptr<Electrocasnic> CerereReparatie::getAparat() const { return aparat; }
+string CerereReparatie::getTimestamp() const { return timestamp; }
+int CerereReparatie::getComplexitate() const { return complexitate; }
+int CerereReparatie::getDurataEstimata() const { return durataEstimata; }
+int CerereReparatie::getDurataRamasa() const { return durataRamasa; }
+double CerereReparatie::getPretReparatie() const { return pretReparatie; }
+string CerereReparatie::getStatus() const { return status; }
+
+shared_ptr<Tehnician> CerereReparatie::getTehnicianAlocat() const {
+    return tehnicianAlocat;
+}
+
+void CerereReparatie::setStatus(const string& s) {
+    status = s;
+}
+
+void CerereReparatie::setTehnicianAlocat(shared_ptr<Tehnician> teh) {
+    tehnicianAlocat = teh;
+}
+
+void CerereReparatie::proceseaza() {
+    if (durataRamasa > 0) {
+        durataRamasa--;
+    }
+}
+
+bool CerereReparatie::esteFinalizata() const {
+    return durataRamasa == 0 && status == "in_lucru";
+}
+
+void CerereReparatie::calculeazaDurata() {
+    if (complexitate == 0) {
+        durataEstimata = 0;
+        durataRamasa = 0;
+        return;
+    }
+    
+    int vechime = aparat->calculeazaVechime();
+    durataEstimata = vechime * complexitate;
+    durataRamasa = durataEstimata;
+}
+
+void CerereReparatie::calculeazaPret() {
+    pretReparatie = aparat->getPretCatalog() * durataEstimata;
+}
+

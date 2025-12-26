@@ -1,29 +1,29 @@
-CXX      = clang++
-CXXFLAGS = -std=c++17 -Wall -Wextra -Iinclude -Iinclude/models -Iinclude/managers -Iinclude/utils -Iinclude/views
-LDFLAGS  = 
+# Makefile pentru FixItNow
 
-SRC_DIR  = src
-OBJ_DIR  = obj
-BIN_DIR  = bin
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall -Wextra -Iinclude
 
-SOURCES  = $(shell find $(SRC_DIR) -name "*.cpp")
-OBJECTS  = $(SOURCES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
-TARGET   = $(BIN_DIR)/FixItNow
+# gaseste toate cpp-urile automat
+SOURCES = $(shell find src -name '*.cpp')
+OBJECTS = $(SOURCES:src/%.cpp=build/%.o)
+
+TARGET = bin/fixitnow
 
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	@mkdir -p $(BIN_DIR)
-	$(CXX) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
-	@echo "\n>>> Compilation finished: $(TARGET)"
+	@mkdir -p bin
+	$(CXX) $(OBJECTS) -o $@
+	@echo "Build complete"
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+build/%.o: src/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR)
-	@echo ">>> Cleanup finished."
+	rm -rf build bin
+	rm -f *.csv rapoarte/*.csv rapoarte/*.txt
+	@echo "Clean"
 
 run: all
 	./$(TARGET)

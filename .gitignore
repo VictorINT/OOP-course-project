@@ -1,91 +1,46 @@
-# Prerequisites
-*.d
+# Build directories
+build/
+bin/
 
-# Compiled Object files
-*.slo
-*.lo
+# Object files
 *.o
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
 
 # Executables
 *.exe
 *.out
-*.app
+fixitnow
 
-# debug information files
-*.dwo
-# CMake
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-*.cmake
+# CSV reports and rapoarte folder
+*.csv
+rapoarte/
+*.txt
 
-# Build directories
-build/
-Build/
-bin/
-*.app
+# Generated documentation
+documentatie.pdf
 
-# VS Code
+# IDE files
 .vscode/
-*.code-workspace
-
-# Visual Studio
-.vs/
-*.sln
-*.vcxproj*
-*.user
-
-# IDE
 .idea/
 *.swp
 *.swo
 *~
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# macOS
 .DS_Store
 
-# Dependencies
-*.d
-*.lib
+# Backup files
+*.bak
+*~
 
-# Temporary files
-*.tmp
-*.log
-temp/
-tmp/
+# Compressed files
+*.zip
+*.7z
+*.tar.gz
 
-# OS specific
-Thumbs.db
-.DS_Store
-*.dSYM/
-
-# Output files
-reports/*.csv
-
-# Core dump
-core
-core.*

@@ -1,46 +1,88 @@
-#include "../../include/models/Tehnician.h"
-#include "../../include/models/CerereReparatie.h"
-#include <memory>
+#include "Tehnician.h"
+#include "CerereReparatie.h"
+#include <iostream>
+#include <algorithm>
 
 using namespace std;
 
-Tehnician::Tehnician() : Angajat(), specializare("") {}
+Tehnician::Tehnician(const string& n, const string& p, 
+                     const string& c, const string& data, 
+                     const string& o)
+    : Employee(n, p, c, data, o), durataTotala(0.0), 
+      valoareReparatiiEfectuate(0.0) {}
 
-Tehnician::Tehnician(int id, const string& nume, const string& cnp, const string& specializare) : Angajat(id, nume, cnp), specializare(specializare) {}
-
-Tehnician::~Tehnician() {}
-
-double Tehnician::getSalariu() const {
-    const double salariuBaza = 4000.0;
-    double bonusReparatii = 0.0;
-
-    for (auto& w : reparatiiEfectuate) {
-        auto cerere = w.lock();
-        if (cerere) {
-            bonusReparatii += 0.02 * cerere->getCostTotal();
-        }
-    }
-
-    return salariuBaza + bonusReparatii;
+double Tehnician::calculeazaSalariu() const {
+    double salariu = 4000.0;  // Salariu de baza
+    salariu += calculeazaBonusFidelitate();  // Bonus fidelitate
+    salariu += calculeazaPrimaTransport();  // Prima transport
+    salariu += valoareReparatiiEfectuate * 0.02;  // Bonus reparatii (2%)
+    return salariu;
 }
 
-string Tehnician::getTip() const {
+string Tehnician::getTipAngajat() const {
     return "Tehnician";
 }
 
-string Tehnician::getSpecializare() const {
-    return specializare;
-}
-
-void Tehnician::adaugaReparatie(std::shared_ptr<CerereReparatie> reparatie) {
-    reparatiiEfectuate.push_back(reparatie);
-}
-
-std::vector<std::shared_ptr<CerereReparatie>> Tehnician::getReparatii() const {
-    std::vector<std::shared_ptr<CerereReparatie>> v;
-    for (auto& w : reparatiiEfectuate) {
-        auto s = w.lock();
-        if (s) v.push_back(s);
+void Tehnician::afiseazaDetalii() const {
+    Employee::afiseazaDetalii();
+    cout << "Cereri active: " << cereriActive.size() << "\n";
+    cout << "Durata totala: " << durataTotala << "\n";
+    cout << "Valoare reparatii efectuate: " << valoareReparatiiEfectuate << " RON\n";
+    cout << "Specializari:\n";
+    for (const auto& [tip, marci] : specializari) {
+        cout << "  " << tip << ": ";
+        for (size_t i = 0; i < marci.size(); i++) {
+            cout << marci[i];
+            if (i < marci.size() - 1) cout << ", ";
+        }
+        cout << "\n";
     }
-    return v;
 }
+
+void Tehnician::adaugaSpecializare(const string& tip, 
+                                    const string& marca) {
+    specializari[tip].push_back(marca);
+}
+
+bool Tehnician::poateRepara(const string& tip, 
+                             const string& marca) const {
+    auto it = specializari.find(tip);
+    if (it == specializari.end()) return false;
+    
+    const auto& marci = it->second;
+    return find(marci.begin(), marci.end(), marca) != marci.end();
+}
+
+bool Tehnician::areLoc() const {
+    return cereriActive.size() < 3;
+}
+
+void Tehnician::adaugaCerereActiva(shared_ptr<CerereReparatie> cerere) {
+    cereriActive.push_back(cerere);
+}
+
+void Tehnician::eliminaCerereActiva(shared_ptr<CerereReparatie> cerere) {
+    auto it = find(cereriActive.begin(), cereriActive.end(), cerere);
+    if (it != cereriActive.end()) {
+        cereriActive.erase(it);
+    }
+}
+
+void Tehnician::adaugaValoareReparatie(double valoare) {
+    valoareReparatiiEfectuate += valoare;
+}
+
+double Tehnician::getDurataTotala() const {
+    return durataTotala;
+}
+
+const vector<shared_ptr<CerereReparatie>>& 
+Tehnician::getCereriActive() const {
+    return cereriActive;
+}
+
+const map<string, vector<string>>& 
+Tehnician::getSpecializari() const {
+    return specializari;
+}
+
