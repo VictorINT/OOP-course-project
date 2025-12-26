@@ -47,7 +47,10 @@ string CNPGenerator::genereazaCNP(int sex, int an, int luna, int zi,
     int anScurt = an % 100;
     
     // Construieste CNP (fara cifra de control)
-    ostringstream cnp;
+    ostringstream cnp; // un fel de cout dar in memorie
+    // setw seteaza latimea de 2, setfill pune 0 in caz ca e an scrut sau ceva de genul
+    // si necesita un singur digit
+
     cnp << cifraSex
         << setfill('0') << setw(2) << anScurt
         << setfill('0') << setw(2) << luna
@@ -65,11 +68,13 @@ string CNPGenerator::genereazaCNP(int sex, int an, int luna, int zi,
 }
 
 string CNPGenerator::genereazaCNPRandom() {
-    // Seed pentru random
+    // Seed pentru random, modern C++ 11. random_device ia nr random din hardware noise
+    // iar mt19337 vine de la 2^19337-1 si produce flux de nr random bazat pe seed ul rd
     static random_device rd;
     static mt19937 gen(rd());
     
     // Genereaza componente random
+    // uniform_int_distribution functor pentru limitele intervalului de random
     uniform_int_distribution<> sexDist(1, 2);  // 1=M, 2=F
     uniform_int_distribution<> anDist(1950, 2005);  // Ani rezonabili
     uniform_int_distribution<> lunaDist(1, 12);

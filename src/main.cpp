@@ -1,6 +1,8 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <ranges>
+
 #include "managers/ServiceManager.h"
 #include "factories/EmployeeFactory.h"
 #include "factories/ElectrocasnicFactory.h"
@@ -127,7 +129,7 @@ void incarcaAngajatiDinFisier(ServiceManager& sm) {
         try {
             auto elemente = FileReader::parseazaLinieCSV(linie);
             
-            if (elemente.size() < 6) {
+            if (elemente.size() < 6) { // 6 - miniul de oloane necesare, restul sunt optionale
                 FileReader::raporteazaEroare(numarLinie, 
                     "Numar insuficient de campuri");
                 continue;
@@ -139,7 +141,7 @@ void incarcaAngajatiDinFisier(ServiceManager& sm) {
             );
             
             // Daca e tehnician si are specializari
-            if (elemente[0] == "Tehnician" && elemente.size() > 6) {
+            if (elemente[0] == "Tehnician" && elemente.size() > 6) { // > 6 -> are specializare
                 auto tehnician = dynamic_pointer_cast<Tehnician>(angajat);
                 
                 for (size_t i = 6; i < elemente.size(); i += 2) {
@@ -270,7 +272,7 @@ void simulareReparatii(ServiceManager& sm) {
     
     cout << "\n=== Simulare inceputa ===\n\n";
     
-    for (int timp = 1; timp <= durata; timp++) {
+    for (int timp : views::iota(1, durata + 1)) { // i in range(..) din python :)
         cout << "[Timp " << timp << "]\n";
         sm.simulareUnTic();
         sm.afiseazaStatusCurent();
@@ -326,9 +328,7 @@ void gestioneazaAngajati(ServiceManager& sm) {
                     cout << "Prenume nou (sau - pentru a nu modifica): ";
                     cin >> prenume;
                     
-                    sm.modificaNumeAngajat(cnp, 
-                        (nume != "-") ? nume : "",
-                        (prenume != "-") ? prenume : "");
+                    sm.modificaNumeAngajat(cnp, (nume != "-") ? nume : "", (prenume != "-") ? prenume : "");
                     cout << "Angajat modificat!\n";
                     break;
                 }
@@ -350,8 +350,7 @@ void gestioneazaAngajati(ServiceManager& sm) {
                     auto angajat = sm.cautaAngajatDupaCNP(cnp);
                     if (angajat) {
                         angajat->afiseazaDetalii();
-                        cout << "Salariu: " << angajat->calculeazaSalariu() 
-                                  << " RON\n";
+                        cout << "Salariu: " << angajat->calculeazaSalariu() << " RON\n";
                     } else {
                         cout << "Angajat nu a fost gasit.\n";
                     }
@@ -485,6 +484,7 @@ void gestioneazaRaportari(ServiceManager& sm) {
     int optiune;
     
     // Creeaza folder rapoarte daca nu exista
+    // la fel ca mai sus, speram ca se foloseste o distributie derivata din UNIX
     system("mkdir -p rapoarte");
     
     do {

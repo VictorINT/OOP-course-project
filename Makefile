@@ -1,7 +1,7 @@
 # Makefile pentru FixItNow
 
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -Iinclude
+CXXFLAGS = -std=c++20 -Wall -Wextra -Iinclude
 
 # gaseste toate cpp-urile automat
 SOURCES = $(shell find src -name '*.cpp')

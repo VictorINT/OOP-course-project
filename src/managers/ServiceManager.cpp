@@ -35,7 +35,7 @@ void ServiceManager::modificaNumeAngajat(const string& cnp,
     if (!angajat) {
         throw InvalidDataException("Angajat cu CNP " + cnp + " nu a fost gasit");
     }
-    
+
     if (!numeNou.empty()) angajat->setNume(numeNou);
     if (!prenumeNou.empty()) angajat->setPrenume(prenumeNou);
 }
